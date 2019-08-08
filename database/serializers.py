@@ -132,18 +132,19 @@ class ReservationScheduleListSerializer(serializers.ModelSerializer):
 
 
 
-class ReservationSecondStepSerializer(serializers.ModelSerializer):
-    schedule_id = serializers.IntegerField(source='id',
-                                           help_text='사용자가 시청할 영화 스케줄의 고유 id 값')  # 사용자가 관람할(선택한) 영화의 스케줄 id
-    # seat_number = serializers.CharField(source='schedule_time_seat.seat_number', help_text='예매된 좌석 번호')  # 예매된 좌석 번호(배열)
-    seat_number = StringArrayField(source='schedule_time_seat.seat_number', help_text='예매된 좌석 번호')  # 예매된 좌석 번호(배열)
-    price = serializers.IntegerField(help_text='예매 최종 가격')  # 영화의 가격
-    st_count = serializers.IntegerField(source='seat_count', help_text='예매된 좌석 수')  # 예매된 좌석 수
+class ReservationSecondSerializer(serializers.ModelSerializer):
+    booking_number = serializers.SerializerMethodField()
+    phoneNumber = serializers.SerializerMethodField()
 
     class Meta:
         model = Schedule_time
-        fields = ('schedule_id', 'seat_number', 'price', 'st_count')
+        fields = ('booking_number', 'phoneNumber')
 
+    def get_booking_number(self, obj):
+        return self.context['booking_number']
+
+    def get_phoneNumber(self, obj):
+        return obj.user.phoneNumber
 
 class MovieDetailSerializer(serializers.ModelSerializer):
     img_url = serializers.SerializerMethodField('img_url_display')

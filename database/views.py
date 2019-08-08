@@ -160,7 +160,7 @@ def reservationScheduleListView(request):
 
 
 @swagger_auto_schema(method='post',
-                     request_body=ReservationSecondStepSerializer,
+                     request_body=ReservationSecondSerializer,
                      responses={200: Return_200}, operation_id='reservationSecond',
                      operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
 @api_view(['POST'])
@@ -211,9 +211,9 @@ def reservationSecondView(request):
             # save Seat table
             selected_schedule.schedule_time_seat.save()
             seat_numbers = ','.join(booking_data['seat_number'])
-            bookingHistory(request, selected_schedule, seat_numbers, booking_data['price'])  # 예매 내역에 저장
+            booking_number = bookingHistory(request, selected_schedule, seat_numbers, booking_data['price'])  # 예매 내역에 저장
 
-            serializer = Return_200(selected_schedule)
+            serializer = ReservationSecondSerializer(request, context={'booking_number': booking_number})
             # print(booked_seat_numbers)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
@@ -232,6 +232,8 @@ def bookingHistory(request, selected_schedule, seat_numbers, total_price):
         seat_number=seat_numbers,
         total_price=total_price
     )
+
+    return booking_number
 
 
 def random_booking_number():
